@@ -1,98 +1,150 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import React from 'react';
+import { Text, View, TextInput, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native';
 
 export default function HomeScreen() {
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
+    <View style={styles.container}>
+      {/* Navbar */}
+      <View style={styles.navbar}>
+        <Text style={styles.navbarText}>Movies</Text>
+      </View>
+      {/* Tags */}
+      <View style={styles.tagContainer}>
+        <TouchableOpacity style={styles.tag}>
+          <Text style={styles.tagText}>Action</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.tag}>
+          <Text style={styles.tagText}>Comedy</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.tag}>
+          <Text style={styles.tagText}>Drama</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.tag}>
+          <Text style={styles.tagText}>Sci-Fi</Text>
+        </TouchableOpacity>
+      </View>
+      {/* Search Bar */}
+      <View style={styles.searchContainer}>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search Movies..."
+          placeholderTextColor="#aaa"
         />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+      </View>
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+
+
+      {/* Main Content: Movie Cards */}
+      <ScrollView contentContainerStyle={styles.movieContainer}>
+        <View style={styles.card}>
+          <Image
+            source={{ uri: 'https://example.com/inception.jpg' }} // Replace with actual image URL
+            style={styles.cardImage}
+          />
+          <Text style={styles.cardTitle}>Inception</Text>
+        </View>
+        <View style={styles.card}>
+          <Image
+            source={{ uri: 'https://example.com/darkknight.jpg' }} // Replace with actual image URL
+            style={styles.cardImage}
+          />
+          <Text style={styles.cardTitle}>The Dark Knight</Text>
+        </View>
+        <View style={styles.card}>
+          <Image
+            source={{ uri: 'https://example.com/interstellar.jpg' }} // Replace with actual image URL
+            style={styles.cardImage}
+          />
+          <Text style={styles.cardTitle}>Interstellar</Text>
+        </View>
+        {/* Add more movie cards here */}
+      </ScrollView>
+
+      {/* Footer */}
+      <View style={styles.footer}>
+        <Text style={styles.footerText}>© 2025 MovieApp</Text>
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
+  container: {
+    flex: 1,
+    backgroundColor: '#000', // Black background
+    paddingTop: 50,
+    // paddingHorizontal: 20,
+  },
+  navbar: {
+    backgroundColor: '#111', // Dark navbar
+    paddingVertical: 10,
+    // alignItems: 'center',
+    padding: 5,
+  },
+  navbarText: {
+    color: '#fff',
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  searchContainer: {
+    marginVertical: 20,
     alignItems: 'center',
-    gap: 8,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  searchInput: {
+    width: '80%',
+    padding: 10,
+    backgroundColor: '#333',
+    color: '#fff',
+    borderRadius: 10,
+    fontSize: 16,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  tagContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginVertical: 20,
+  },
+  tag: {
+    backgroundColor: '#444',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+  },
+  tagText: {
+    color: '#fff',
+    fontSize: 14,
+  },
+  movieContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  card: {
+    width: '45%',
+    backgroundColor: '#222',
+    borderRadius: 10,
+    marginBottom: 20,
+    alignItems: 'center',
+    overflow: 'hidden',
+  },
+  cardImage: {
+    width: '100%',
+    height: 200,
+    borderRadius: 10,
+  },
+  cardTitle: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+    padding: 10,
+  },
+  footer: {
+    backgroundColor: '#111',
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+  footerText: {
+    color: '#777',
+    fontSize: 12,
   },
 });
