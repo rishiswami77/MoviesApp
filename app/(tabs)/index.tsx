@@ -1,150 +1,353 @@
-import React from 'react';
-import { Text, View, TextInput, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native';
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Pressable,
+  Image,
+  TextInput,
+  Dimensions,
+} from "react-native";
 
-export default function HomeScreen() {
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+} from "react-native-reanimated";
+
+import { Video, ResizeMode } from "expo-av";
+import { Ionicons } from "@expo/vector-icons";
+
+const { width } = Dimensions.get("window");
+const CARD_WIDTH = width * 0.44;
+
+/* ============================================================
+   TYPES
+============================================================ */
+interface Movie {
+  id: number;
+  title: string;
+  rating: number;
+  poster: string;
+  trailer: string;
+}
+
+interface MovieCardProps {
+  movie: Movie;
+  theme: ThemeMode;
+}
+
+type ThemeMode = "dark" | "light";
+
+interface ThemeConfig {
+  bg: string;
+  text: string;
+  card: string;
+  border: string;
+}
+
+/* ============================================================
+   DATA
+============================================================ */
+
+const DEMO_MOVIES: Movie[] = [
+  {
+    id: 1,
+    title: "Inception",
+    rating: 5,
+    poster: "https://image.tmdb.org/t/p/w500/8uO0gUM8aNqYLs1OsTBQiXu0fEv.jpg",
+    trailer: "https://www.w3schools.com/html/mov_bbb.mp4",
+  },
+  {
+    id: 2,
+    title: "The Dark Knight",
+    rating: 5,
+    poster: "https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg",
+    trailer: "https://www.w3schools.com/html/movie.mp4",
+  },
+  {
+    id: 3,
+    title: "Interstellar",
+    rating: 5,
+    poster: "https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg",
+    trailer: "https://www.w3schools.com/html/mov_bbb.mp4",
+  },
+];
+
+const TAGS = [
+  "Action",
+  "Comedy",
+  "Drama",
+  "Sci-Fi",
+  "Horror",
+  "Romance",
+  "Thriller",
+  "Animation",
+  "Fantasy",
+  "Documentary",
+];
+
+const themes: Record<ThemeMode, ThemeConfig> = {
+  dark: {
+    bg: "#0D0D0D",
+    text: "#fff",
+    card: "#161616",
+    border: "#333",
+  },
+  light: {
+    bg: "#F5F5F5",
+    text: "#000",
+    card: "#fff",
+    border: "#CCC",
+  },
+};
+
+/* ============================================================
+   COMPONENTS
+============================================================ */
+
+/* ⭐ Rating Stars */
+function RatingStars({ rating }: { rating: number }) {
   return (
-    <View style={styles.container}>
-      {/* Navbar */}
-      <View style={styles.navbar}>
-        <Text style={styles.navbarText}>Movies</Text>
-      </View>
-      {/* Tags */}
-      <View style={styles.tagContainer}>
-        <TouchableOpacity style={styles.tag}>
-          <Text style={styles.tagText}>Action</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.tag}>
-          <Text style={styles.tagText}>Comedy</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.tag}>
-          <Text style={styles.tagText}>Drama</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.tag}>
-          <Text style={styles.tagText}>Sci-Fi</Text>
-        </TouchableOpacity>
-      </View>
-      {/* Search Bar */}
-      <View style={styles.searchContainer}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search Movies..."
-          placeholderTextColor="#aaa"
+    <View style={{ flexDirection: "row", marginTop: 5 }}>
+      {[1, 2, 3, 4, 5].map((i) => (
+        <Ionicons
+          key={i}
+          name={i <= rating ? "star" : "star-outline"}
+          size={16}
+          color="#FFD700"
+          style={{ marginRight: 2 }}
         />
-      </View>
-
-
-
-      {/* Main Content: Movie Cards */}
-      <ScrollView contentContainerStyle={styles.movieContainer}>
-        <View style={styles.card}>
-          <Image
-            source={{ uri: 'https://example.com/inception.jpg' }} // Replace with actual image URL
-            style={styles.cardImage}
-          />
-          <Text style={styles.cardTitle}>Inception</Text>
-        </View>
-        <View style={styles.card}>
-          <Image
-            source={{ uri: 'https://example.com/darkknight.jpg' }} // Replace with actual image URL
-            style={styles.cardImage}
-          />
-          <Text style={styles.cardTitle}>The Dark Knight</Text>
-        </View>
-        <View style={styles.card}>
-          <Image
-            source={{ uri: 'https://example.com/interstellar.jpg' }} // Replace with actual image URL
-            style={styles.cardImage}
-          />
-          <Text style={styles.cardTitle}>Interstellar</Text>
-        </View>
-        {/* Add more movie cards here */}
-      </ScrollView>
-
-      {/* Footer */}
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>© 2025 MovieApp</Text>
-      </View>
+      ))}
     </View>
   );
 }
 
+/* 🎬 Movie Card */
+function MovieCard({ movie, theme }: MovieCardProps) {
+  const scale = useSharedValue(1);
+  const [preview, setPreview] = useState(false);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
+  return (
+    <Pressable
+      onPressIn={() => (scale.value = withSpring(0.95))}
+      onPressOut={() => (scale.value = withSpring(1), setPreview(false))
+      }
+      onLongPress={() => setPreview(true)}
+    >
+      <Animated.View
+        style={[
+          styles.card,
+          { backgroundColor: themes[theme].card },
+          animatedStyle,
+        ]}
+      >
+        {preview ? (
+          <Video
+            source={{ uri: movie.trailer }}
+            style={styles.cardImage}
+            shouldPlay
+            isLooping
+            resizeMode={ResizeMode.COVER}
+          />
+        ) : (
+          <Image source={{ uri: movie.poster }} style={styles.cardImage} />
+        )}
+
+        <View style={styles.cardInfo}>
+          <Text style={[styles.cardTitle, { color: themes[theme].text }]}>
+            {movie.title}
+          </Text>
+          <RatingStars rating={movie.rating} />
+        </View>
+      </Animated.View>
+    </Pressable >
+  );
+}
+
+/* ============================================================
+   MAIN SCREEN
+============================================================ */
+
+export default function HomeScreen() {
+  const [theme, setTheme] = useState<ThemeMode>("dark");
+
+  return (
+    <View style={[styles.container, { backgroundColor: themes[theme].bg }]}>
+
+      {/* NAVBAR */}
+      <View style={styles.navbar}>
+        <Text style={styles.navTitle}>🎬 Movie Explorer</Text>
+
+        <Pressable style={styles.themeBtn}
+          onPress={() => setTheme(theme === "dark" ? "light" : "dark")}
+        >
+          <Ionicons
+            name={theme === "dark" ? "sunny-outline" : "moon-outline"}
+            size={28}
+            color="#fff"
+          />
+        </Pressable>
+      </View>
+
+      {/* TAGS */}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.tagScroll}
+      >
+        {TAGS.map((tag) => (
+          <Pressable key={tag} style={styles.tag}>
+            <Text style={styles.tagText}>{tag}</Text>
+          </Pressable>
+        ))}
+      </ScrollView>
+
+      {/* SEARCH BAR */}
+      <View style={styles.searchContainer}>
+        <View style={styles.searchBox}>
+          <TextInput
+            placeholder="Search movies..."
+            placeholderTextColor="#777"
+            style={styles.searchInput}
+          />
+          <Ionicons name="search" size={20} color="#fff" />
+        </View>
+      </View>
+
+      {/* TRENDING */}
+      <Text style={styles.sectionTitle}>🔥 Trending Now</Text>
+
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{ gap: 20, paddingHorizontal: 15 }}
+      >
+        {DEMO_MOVIES.map((m) => (
+          <MovieCard key={m.id} movie={m} theme={theme} />
+        ))}
+      </ScrollView>
+
+      {/* AI RECOMMENDED */}
+      <Text style={styles.sectionTitle}>🤖 Recommended For You</Text>
+
+      <ScrollView contentContainerStyle={styles.movieGrid}>
+        {DEMO_MOVIES.map((m) => (
+          <MovieCard key={m.id} movie={m} theme={theme} />
+        ))}
+      </ScrollView>
+
+    </View>
+  );
+}
+
+/* ============================================================
+   STYLES
+============================================================ */
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000', // Black background
-    paddingTop: 50,
-    // paddingHorizontal: 20,
   },
+
   navbar: {
-    backgroundColor: '#111', // Dark navbar
-    paddingVertical: 10,
-    // alignItems: 'center',
-    padding: 5,
+    padding: 15,
+    backgroundColor: "#101010",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
-  navbarText: {
-    color: '#fff',
-    fontSize: 24,
-    fontWeight: 'bold',
+
+  navTitle: {
+    fontSize: 26,
+    fontWeight: "bold",
+    color: "#fff",
   },
-  searchContainer: {
-    marginVertical: 20,
-    alignItems: 'center',
+
+  themeBtn: {
+    padding: 8,
   },
-  searchInput: {
-    width: '80%',
-    padding: 10,
-    backgroundColor: '#333',
-    color: '#fff',
-    borderRadius: 10,
-    fontSize: 16,
+
+  tagScroll: {
+    flexDirection: "row",
+    gap: 10,
+    height:250,
+    paddingHorizontal: 10,
+    paddingTop: 15,
   },
-  tagContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginVertical: 20,
-  },
+
   tag: {
-    backgroundColor: '#444',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
+    backgroundColor: "#1C1C1C",
+    paddingVertical: 7,
+    paddingHorizontal: 15,
     borderRadius: 20,
+    height:40,
+    borderWidth: 1,
+    borderColor: "#333",
   },
+
   tagText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 14,
   },
-  movieContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    marginBottom: 20,
+
+  searchContainer: { padding: 15 },
+
+  searchBox: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#1A1A1A",
+    paddingHorizontal: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#333",
   },
+
+  searchInput: {
+    flex: 1,
+    paddingVertical: 10,
+    color: "#fff",
+  },
+
+  sectionTitle: {
+    color: "#fff",
+    fontSize: 22,
+    fontWeight: "bold",
+    paddingHorizontal: 15,
+    marginTop: 20,
+    marginBottom: 10,
+  },
+
+  movieGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 20,
+    paddingHorizontal: 15,
+    paddingBottom: 100,
+  },
+
   card: {
-    width: '45%',
-    backgroundColor: '#222',
-    borderRadius: 10,
-    marginBottom: 20,
-    alignItems: 'center',
-    overflow: 'hidden',
+    width: CARD_WIDTH,
+    borderRadius: 12,
+    overflow: "hidden",
   },
+
   cardImage: {
-    width: '100%',
-    height: 200,
-    borderRadius: 10,
+    width: "100%",
+    height: 210,
   },
-  cardTitle: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
+
+  cardInfo: {
     padding: 10,
   },
-  footer: {
-    backgroundColor: '#111',
-    paddingVertical: 10,
-    alignItems: 'center',
-  },
-  footerText: {
-    color: '#777',
-    fontSize: 12,
+
+  cardTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
