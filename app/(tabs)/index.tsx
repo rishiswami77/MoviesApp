@@ -51,14 +51,15 @@ interface ThemeConfig {
    DATA
 ============================================================ */
 
+interface Movie {
+  id: number;
+  title: string;
+  rating: number;
+  poster: string;
+  trailer: string;
+}
+
 const DEMO_MOVIES: Movie[] = [
-  {
-    id: 1,
-    title: "Inception",
-    rating: 5,
-    poster: "https://image.tmdb.org/t/p/w500/8uO0gUM8aNqYLs1OsTBQiXu0fEv.jpg",
-    trailer: "https://www.w3schools.com/html/mov_bbb.mp4",
-  },
   {
     id: 2,
     title: "The Dark Knight",
@@ -73,7 +74,50 @@ const DEMO_MOVIES: Movie[] = [
     poster: "https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg",
     trailer: "https://www.w3schools.com/html/mov_bbb.mp4",
   },
+  {
+    id: 4,
+    title: "Inception",
+    rating: 5,
+    poster: "https://image.tmdb.org/t/p/w500/edv5CZvWj09upOsy2Y6IwDhK8bt.jpg",
+    trailer: "https://www.w3schools.com/html/movie.mp4",
+  },
+  {
+    id: 7,
+    title: "The Shawshank Redemption",
+    rating: 5,
+    poster: "https://image.tmdb.org/t/p/w500/q6y0Go1tsGEsmtFryDOJo3dEmqu.jpg",
+    trailer: "https://www.w3schools.com/html/mov_bbb.mp4",
+  },
+  {
+    id: 8,
+    title: "Forrest Gump",
+    rating: 5,
+    poster: "https://image.tmdb.org/t/p/w500/saHP97rTPS5eLmrLQEcANmKrsFl.jpg",
+    trailer: "https://www.w3schools.com/html/movie.mp4",
+  },
+  {
+    id: 9,
+    title: "Fight Club",
+    rating: 5,
+    poster: "https://image.tmdb.org/t/p/w500/bptfVGEQuv6vDTIMVCHjJ9Dz8PX.jpg",
+    trailer: "https://www.w3schools.com/html/mov_bbb.mp4",
+  },
+  {
+    id: 11,
+    title: "The Lion King",
+    rating: 5,
+    poster: "https://image.tmdb.org/t/p/w500/2bXbqYdUdNVa8VIWXVfclP2ICtT.jpg",
+    trailer: "https://www.w3schools.com/html/mov_bbb.mp4",
+  },
+  {
+    id: 12,
+    title: "Avengers: Endgame",
+    rating: 5,
+    poster: "https://image.tmdb.org/t/p/w500/or06FN3Dka5tukK1e9sl16pB3iy.jpg",
+    trailer: "https://www.w3schools.com/html/movie.mp4",
+  },
 ];
+
 
 const TAGS = [
   "Action",
@@ -226,7 +270,7 @@ export default function HomeScreen() {
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ gap: 20, paddingHorizontal: 15 }}
+        contentContainerStyle={{ gap: 20, paddingHorizontal: 15, height: 800 }}
       >
         {DEMO_MOVIES.map((m) => (
           <MovieCard key={m.id} movie={m} theme={theme} />
@@ -276,7 +320,7 @@ const styles = StyleSheet.create({
   tagScroll: {
     flexDirection: "row",
     gap: 10,
-    height:250,
+    height: 180,
     paddingHorizontal: 10,
     paddingTop: 15,
   },
@@ -286,7 +330,7 @@ const styles = StyleSheet.create({
     paddingVertical: 7,
     paddingHorizontal: 15,
     borderRadius: 20,
-    height:40,
+    height: 40,
     borderWidth: 1,
     borderColor: "#333",
   },
@@ -296,7 +340,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
 
-  searchContainer: { padding: 15 },
+  searchContainer: { paddingHorizontal: 15 },
 
   searchBox: {
     flexDirection: "row",
@@ -327,7 +371,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 20,
-    paddingHorizontal: 15,
+    // paddingHorizontal: 15,
     paddingBottom: 100,
   },
 
